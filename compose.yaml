@@ -1,0 +1,56 @@
+version: "3"
+
+services:
+  traccar-db:
+    image: yobasystems/alpine-mariadb
+    container_name: traccar-db
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    volumes:
+      - /home/aneopsy/Dev/Traccar/datas:/var/lib/mysql
+      - /home/aneopsy/Dev/Traccar/datas:/etc/mysql/conf.d
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=@qwertyuiop
+      - MYSQL_DATABASE=traccardb
+      - MYSQL_USER=traccaruser
+      - MYSQL_PASSWORD=@qwertyuiop
+    networks:
+      gps:
+        ipv4_address: 192.168.55.9
+
+  traccar:
+    image: traccar/traccar:latest
+    container_name: traccar
+    depends_on:
+      - traccar-db
+    restart: always
+    configs:
+      - source: traccar_xml
+        target: /opt/traccar/conf/traccar.xml
+    volumes:
+      - type: bind
+        source: ./logs
+        target: /opt/traccar/logs
+    ports:
+      - "8090:8082"
+    environment:
+      - MYSQL_DATABASE=traccardb
+      - MYSQL_USER=traccaruser
+      - MYSQL_PASSWORD=@qwertyuiop
+    networks:
+      gps:
+        ipv4_address: 192.168.55.10
+
+networks:
+  gps:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.55.0/24
+          gateway: 192.168.55.1
+configs:
+  traccar_xml:
+    file: traccar.xml
