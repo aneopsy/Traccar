@@ -6,23 +6,42 @@ services:
     container_name: traccar-db
     command: --default-authentication-plugin=mysql_native_password
     restart: always
+    env_file: .env
     volumes:
       - ./datas:/var/lib/mysql
       - ./datas:/etc/mysql/conf.d
     ports:
       - 3306:3306
     environment:
-      - MYSQL_ROOT_PASSWORD=@qwertyuiop
-      - MYSQL_DATABASE=traccardb
-      - MYSQL_USER=traccaruser
-      - MYSQL_PASSWORD=@qwertyuiop
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     networks:
       backend:
         ipv4_address: 192.168.55.9
 
+  strapi-db:
+    image: elestio/postgres:latest
+    container_name: strapi-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - ./strapi-data:/var/lib/postgresql/data
+    ports:
+      - "24538:5432"
+    networks:
+      backend:
+        ipv4_address: 192.168.55.20
+
   traccar:
     image: aneopsy/aitotracker:latest
     container_name: traccar
+    env_file: .env
     depends_on:
       - traccar-db
     restart: always
@@ -36,12 +55,45 @@ services:
       - 5020:5020/tcp
       - 5055:5055/tcp
     environment:
-      - MYSQL_DATABASE=traccardb
-      - MYSQL_USER=traccaruser
-      - MYSQL_PASSWORD=@qwertyuiop
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     networks:
       backend:
         ipv4_address: 192.168.55.10
+
+
+  strapi:
+    image: elestio/strapi-${NODE_ENV}:latest
+    container_name: strapi
+    restart: always
+    env_file: .env
+    environment:
+      DATABASE_CLIENT: ${DATABASE_CLIENT}
+      DATABASE_HOST: strapi-db
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      APP_KEYS: ${APP_KEYS}
+      NODE_ENV: ${NODE_ENV}
+    volumes:
+    - ./config:/opt/app/config
+    - ./src:/opt/app/src
+    # - ./package.json:/opt/package.json
+    # - ./yarn.lock:/opt/yarn.lock
+    - ./.env:/opt/app/.env
+    - ./public/uploads:/opt/app/public/uploads
+    - ./entrypoint.sh:/opt/app/entrypoint.sh
+    ports:
+    - "9930:1337"
+    depends_on:
+    - strapi-db
+    networks:
+      backend:
+        ipv4_address: 192.168.55.21
 
 networks:
   backend:

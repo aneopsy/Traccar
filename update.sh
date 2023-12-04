@@ -1,1 +1,1 @@
-docker compose down && docker pull aneopsy/aitotracker && docker compose up -d
+docker compose down && docker pull aneopsy/aitotracker && ./scripts/preInstall.sh && docker compose up -d && ./scripts/postInstall.sh
