@@ -7,8 +7,8 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     volumes:
-      - /home/aneopsy/Dev/Traccar/datas:/var/lib/mysql
-      - /home/aneopsy/Dev/Traccar/datas:/etc/mysql/conf.d
+      - ./datas:/var/lib/mysql
+      - ./datas:/etc/mysql/conf.d
     ports:
       - 3306:3306
     environment:
@@ -30,9 +30,7 @@ services:
       - source: traccar_xml
         target: /opt/traccar/conf/traccar.xml
     volumes:
-      - type: bind
-        source: ./logs
-        target: /opt/traccar/logs
+      - ./logs:/opt/traccar/logs
     ports:
       - 80:8082
       - 5020:5020/tcp
