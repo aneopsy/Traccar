@@ -51,7 +51,7 @@ services:
     volumes:
       - ./logs:/opt/traccar/logs
     ports:
-      - 80:8082
+      - 8082:8082
       - 5020:5020/tcp
       - 5055:5055/tcp
     environment:
@@ -87,7 +87,7 @@ services:
       - ./public/uploads:/opt/app/public/uploads
       - ./entrypoint.sh:/opt/app/entrypoint.sh
     ports:
-      - "8080:1337"
+      - "8081:1337"
     depends_on:
       - strapi-db
     networks:
