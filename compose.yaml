@@ -62,7 +62,6 @@ services:
       backend:
         ipv4_address: 192.168.55.10
 
-
   strapi:
     image: elestio/strapi-${NODE_ENV}:latest
     container_name: strapi
@@ -80,17 +79,17 @@ services:
       APP_KEYS: ${APP_KEYS}
       NODE_ENV: ${NODE_ENV}
     volumes:
-    - ./config:/opt/app/config
-    - ./src:/opt/app/src
-    # - ./package.json:/opt/package.json
-    # - ./yarn.lock:/opt/yarn.lock
-    - ./.env:/opt/app/.env
-    - ./public/uploads:/opt/app/public/uploads
-    - ./entrypoint.sh:/opt/app/entrypoint.sh
+      - ./config:/opt/app/config
+      - ./src:/opt/app/src
+      # - ./package.json:/opt/package.json
+      # - ./yarn.lock:/opt/yarn.lock
+      - ./.env:/opt/app/.env
+      - ./public/uploads:/opt/app/public/uploads
+      - ./entrypoint.sh:/opt/app/entrypoint.sh
     ports:
-    - "9930:1337"
+      - "8080:1337"
     depends_on:
-    - strapi-db
+      - strapi-db
     networks:
       backend:
         ipv4_address: 192.168.55.21
