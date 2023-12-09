@@ -110,3 +110,6 @@ configs:
 volumes:
   traccar-db:
     external: true
+
+
+    
